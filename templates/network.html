@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}
+Network Activity
+{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">🌐 Network Activity Monitor</h2>
+
+<div class="row mb-4">
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <div class="metric-title">Active Connections</div>
+            <div class="metric-value text-info">127</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <div class="metric-title">Blocked IPs</div>
+            <div class="metric-value text-danger">12</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <div class="metric-title">Suspicious Events</div>
+            <div class="metric-value text-warning">5</div>
+        </div>
+    </div>
+
+</div>
+
+<div class="card p-4">
+
+    <h4 class="mb-3">Live Network Activity</h4>
+
+    <table class="table table-dark table-striped">
+
+        <thead>
+            <tr>
+                <th>Source IP</th>
+                <th>Status</th>
+                <th>Threat Level</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <td>192.168.1.5</td>
+                <td>Blocked</td>
+                <td>
+                    <span class="badge bg-danger">
+                        High
+                    </span>
+                </td>
+            </tr>
+
+            <tr>
+                <td>10.0.0.21</td>
+                <td>Suspicious</td>
+                <td>
+                    <span class="badge bg-warning">
+                        Medium
+                    </span>
+                </td>
+            </tr>
+
+            <tr>
+                <td>192.168.1.10</td>
+                <td>Allowed</td>
+                <td>
+                    <span class="badge bg-success">
+                        Low
+                    </span>
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}
+Add User
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<h2 class="mb-4">
+➕ Add New User
+</h2>
+
+<div class="card p-4">
+
+<form method="POST">
+
+<div class="mb-3">
+
+<label>Username</label>
+
+<input
+type="text"
+name="username"
+class="form-control"
+required>
+
+</div>
+
+<div class="mb-3">
+
+<label>Password</label>
+
+<input
+type="password"
+name="password"
+class="form-control"
+required>
+
+</div>
+
+<div class="mb-3">
+
+<label>Role</label>
+
+<select
+name="role"
+class="form-control">
+
+<option>Admin</option>
+<option>Analyst</option>
+<option>Viewer</option>
+
+</select>
+
+</div>
+
+<button
+class="btn btn-success">
+
+Create User
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}

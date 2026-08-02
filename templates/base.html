@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+{% block title %}{% endblock %}
+</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:
+linear-gradient(
+135deg,
+#020617 0%,
+#0f172a 50%,
+#111827 100%
+);
+color:white;
+font-family:'Segoe UI',sans-serif;
+overflow-x:hidden;
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar{
+width:8px;
+}
+
+::-webkit-scrollbar-track{
+background:#0f172a;
+}
+
+::-webkit-scrollbar-thumb{
+background:#334155;
+border-radius:10px;
+}
+
+/* Layout */
+
+.wrapper{
+display:flex;
+min-height:100vh;
+}
+
+/* Sidebar */
+
+.sidebar{
+width:270px;
+background:rgba(2,6,23,0.92);
+transition:0.3s ease;
+backdrop-filter:blur(18px);
+padding:25px;
+border-right:1px solid rgba(255,255,255,0.08);
+position:fixed;
+height:100vh;
+overflow-y:auto;
+scroll-behavior:smooth;
+display:flex;
+flex-direction:column;
+box-shadow:
+0 0 30px rgba(0,0,0,0.5);
+}
+
+/* Logo */
+
+.logo-icon{
+width:60px;
+height:60px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:28px;
+color:white;
+
+background:linear-gradient(
+135deg,
+#2563eb,
+#06b6d4
+);
+
+border-radius:16px;
+
+box-shadow:
+0 0 20px rgba(6,182,212,.5);
+
+transition:.3s ease;
+}
+
+.logo-icon:hover{
+transform:scale(1.08);
+box-shadow:
+0 0 30px rgba(6,182,212,.8);
+animation:logoPulse 2.5s infinite;
+@keyframes logoPulse{
+
+0%{
+box-shadow:0 0 15px rgba(6,182,212,.4);
+}
+
+50%{
+box-shadow:0 0 30px rgba(6,182,212,.8);
+}
+
+100%{
+box-shadow:0 0 15px rgba(6,182,212,.4);
+}
+
+}
+}
+
+.sidebar-title{
+font-size:24px;
+font-weight:700;
+display:flex;
+align-items:center;
+gap:12px;
+margin-bottom:30px;
+letter-spacing:1px;
+}
+.brand-section{
+display:flex;
+align-items:flex-start;
+gap:12px;
+}
+
+.brand-name{
+font-size:20px;
+font-weight:700;
+line-height:1.2;
+}
+
+.status-online{
+font-size:12px;
+color:#22c55e;
+font-weight:600;
+}
+
+
+
+/* User Card */
+
+.user-card{
+background:
+rgba(30,41,59,0.7);
+backdrop-filter:blur(15px);
+padding:20px;
+border-radius:18px;
+margin-bottom:30px;
+border:1px solid rgba(255,255,255,0.08);
+box-shadow:
+0 8px 25px rgba(0,0,0,0.4);
+}
+
+.user-card h6{
+color:#94a3b8;
+margin-bottom:10px;
+}
+
+.user-card strong{
+font-size:22px;
+display:block;
+margin-bottom:10px;
+}
+
+/* Navigation */
+
+.nav-link{
+color:#cbd5e1;
+padding:14px 16px;
+margin-bottom:10px;
+border-radius:14px;
+font-size:16px;
+font-weight:500;
+transition:all .3s ease;
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.nav-link:hover{
+background:#1e293b;
+color:white;
+transform:translateX(6px);
+box-shadow:
+0 0 15px rgba(59,130,246,0.3);
+}
+
+.nav-link.active{
+background:#2563eb;
+color:white;
+}
+
+/* Main Area */
+
+.main-content{
+margin-left:270px;
+transition:0.3s ease;
+padding:35px;
+width:100%;
+min-height:100vh;
+}
+
+/* Cards */
+
+.card{
+background:
+rgba(30,41,59,0.7);
+backdrop-filter:blur(15px);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:20px;
+color:white;
+box-shadow:
+0 10px 30px rgba(0,0,0,0.35);
+transition:.3s;
+}
+
+.card:hover{
+transform:translateY(-4px);
+box-shadow:
+0 15px 35px rgba(0,0,0,0.45);
+}
+
+/* Tables */
+
+.table{
+margin-bottom:0;
+border-radius:12px;
+overflow:hidden;
+}
+
+.table-dark{
+--bs-table-bg:transparent;
+}
+
+.table tbody tr{
+transition:.2s;
+}
+
+.table tbody tr:hover{
+background:
+rgba(255,255,255,0.05);
+}
+
+/* Headings */
+
+h1,h2,h3,h4,h5{
+font-weight:700;
+letter-spacing:.4px;
+}
+
+/* Buttons */
+
+.btn{
+border-radius:12px;
+font-weight:600;
+transition:.3s;
+}
+
+.btn:hover{
+transform:translateY(-2px);
+}
+
+/* Badges */
+
+.badge{
+padding:8px 12px;
+font-size:13px;
+border-radius:10px;
+}
+
+/* Live Status Glow */
+
+.status-online{
+color:#22c55e;
+font-weight:600;
+text-shadow:
+0 0 12px #22c55e;
+}
+
+.metric-card{
+position:relative;
+overflow:hidden;
+}
+
+.metric-card::before{
+content:'';
+position:absolute;
+top:0;
+left:0;
+height:4px;
+width:100%;
+background:linear-gradient(
+90deg,
+#3b82f6,
+#06b6d4
+);
+}
+.metric-card{
+background:rgba(30,41,59,0.7);
+backdrop-filter:blur(15px);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:20px;
+padding:30px;
+text-align:center;
+position:relative;
+overflow:hidden;
+box-shadow:0 10px 30px rgba(0,0,0,0.35);
+transition:0.3s;
+}
+
+.metric-card:hover{
+transform:translateY(-5px);
+box-shadow:0 15px 35px rgba(0,0,0,0.45);
+}
+
+.metric-card::before{
+content:'';
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:4px;
+background:linear-gradient(
+90deg,
+#3b82f6,
+#06b6d4,
+#22c55e
+);
+}
+
+.metric-title{
+font-size:18px;
+color:#cbd5e1;
+margin-bottom:15px;
+font-weight:600;
+}
+
+.metric-value{
+font-size:52px;
+font-weight:700;
+}
+.live-clock{
+font-size:14px;
+padding:8px 14px;
+font-weight:600;
+color:#38bdf8;
+background:rgba(30,41,59,0.7);
+padding:10px 18px;
+border-radius:12px;
+border:1px solid rgba(255,255,255,0.08);
+box-shadow:0 0 15px rgba(56,189,248,0.2);
+}
+.soc-banner{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:20px;
+background:rgba(30,41,59,0.8);
+padding:20px;
+border-radius:18px;
+margin-bottom:30px;
+border:1px solid rgba(255,255,255,0.05);
+box-shadow:0 10px 30px rgba(0,0,0,0.25);
+}
+
+.soc-item{
+flex:1;
+text-align:center;
+}
+
+.soc-item small{
+color:#94a3b8;
+display:block;
+margin-bottom:8px;
+font-size:14px;
+}
+
+.soc-item h5{
+font-size:24px;
+font-weight:700;
+margin:0;
+}
+.nav-link.active{
+background:linear-gradient(90deg,#2563eb,#06b6d4);
+color:white !important;
+font-weight:600;
+box-shadow:0 0 15px rgba(59,130,246,.4);
+}
+.soc-banner{
+background:#1e293b;
+padding:15px;
+border-radius:15px;
+display:flex;
+gap:15px;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+
+.soc-item{
+text-align:center;
+}
+
+.metric-card{
+background:#1e293b;
+border-radius:18px;
+padding:22px;
+text-align:center;
+height:100%;
+box-shadow:0 5px 20px rgba(0,0,0,0.35);
+transition:0.3s;
+border-top:4px solid #22c55e;
+}
+
+.metric-card:hover{
+transform:translateY(-6px);
+}
+.menu-toggle{
+background:#1e293b;
+color:white;
+border:none;
+
+width:40px;
+height:40px;
+
+border-radius:10px;
+font-size:18px;
+cursor:pointer;
+
+box-shadow:0 4px 15px rgba(0,0,0,.3);
+
+transition:.3s;
+}
+
+.menu-toggle:hover{
+background:#334155;
+}
+
+.sidebar.collapsed{
+transform:translateX(-100%);
+}
+
+.main-content.expanded{
+margin-left:0 !important;
+}
+.menu-toggle.floating{
+position:fixed;
+top:20px;
+left:20px;
+z-index:99999;
+}
+.open-sidebar-btn{
+display:none;
+
+position:fixed;
+top:5px;
+left:5px;
+
+z-index:999999;
+
+background:#1e293b;
+color:white;
+
+border:none;
+
+width:35px;
+height:35px;
+
+border-radius:10px;
+
+font-size:20px;
+cursor:pointer;
+
+box-shadow:0 4px 15px rgba(0,0,0,.3);
+}
+</style>
+</head>
+
+<body>
+ 
+
+<div class="wrapper">
+
+<!-- Sidebar -->
+
+<div class="sidebar">
+
+<div class="sidebar-title">
+
+<div class="brand-section">
+
+<div class="logo-icon">
+    <i class="bi bi-eye-fill"></i>
+</div>
+
+<div>
+
+<div class="brand-name">
+SOC Center
+</div>
+
+<small class="status-online">
+● LIVE
+</small>
+
+</div>
+
+</div>
+
+<button id="menuToggle" class="menu-toggle">
+☰
+</button>
+
+</div>
+
+
+
+
+<ul class="nav flex-column flex-grow-1">
+
+<li class="nav-item">
+<a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">
+    📊 Dashboard
+</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link {% if request.path == '/threat-intel' %}active{% endif %}" href="/threat-intel">
+    🛡 Threat Intelligence
+</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link {% if request.path == '/threat-hunting' %}active{% endif %}" href="/threat-hunting">
+    🔍 Threat Hunting
+</a>
+<li class="nav-item">
+<a class="nav-link {% if request.path == '/attack-map' %}active{% endif %}" href="/attack-map">
+🌍 Global Attack Map
+</a>
+</li>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link {% if request.path == '/incidents' %}active{% endif %}" href="/incidents">
+        🚨 Incidents
+    </a>
+</li>
+
+{% if current_user.role == "Admin" %}
+
+<li class="nav-item">
+    <a class="nav-link {% if request.path == '/users' %}active{% endif %}" href="/users">
+        👥 User Management
+    </a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link {% if request.path == '/audit-logs' %}active{% endif %}" href="/audit-logs">
+        📋 Audit Logs
+    </a>
+</li>
+
+{% endif %}
+<li class="nav-item">
+<a class="nav-link {% if request.path == '/network' %}active{% endif %}" href="/network">
+🌐 Network
+</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link {% if request.path == '/system' %}active{% endif %}" href="/system">
+💻 System Health
+</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link {% if request.path == '/upload' %}active{% endif %}" href="/upload">
+📂 Upload Logs
+</a>
+</li>
+<div class="user-card mt-4">
+
+<h6>Logged In</h6>
+
+<strong>{{ current_user.username }}</strong>
+
+<span class="badge bg-success">
+{{ current_user.role }}
+</span>
+
+</div>
+
+<li class="nav-item">
+<a class="nav-link" href="/logout">
+🚪 Logout
+</a>
+</li>
+
+</ul>
+
+</div>
+
+<button id="openSidebar" class="open-sidebar-btn">
+☰
+</button>
+
+<!-- Main Content -->
+
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h6 class="text-secondary mb-0">
+            Security Operations Center
+        </h6>
+    </div>
+
+    <div id="liveClock" class="live-clock"></div>
+
+</div>
+
+
+
+
+{% block content %}
+
+{% endblock %}
+
+</div>
+
+</div>
+<script>
+
+function updateClock(){
+
+    const now = new Date();
+
+    let day = String(now.getDate()).padStart(2,'0');
+    let month = String(now.getMonth()+1).padStart(2,'0');
+    let year = now.getFullYear();
+
+    let time = now.toLocaleTimeString();
+
+    document.getElementById("liveClock").innerHTML =
+        `${day}/${month}/${year} | ${time}`;
+
+}
+
+setInterval(updateClock,1000);
+
+updateClock();
+
+</script>
+<script>
+
+const sidebar = document.querySelector(".sidebar");
+
+if(sidebar){
+
+    sidebar.scrollTop =
+        localStorage.getItem("sidebarScroll") || 0;
+
+    sidebar.addEventListener("scroll", () => {
+
+        localStorage.setItem(
+            "sidebarScroll",
+            sidebar.scrollTop
+        );
+
+    });
+
+}
+
+</script>
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const closeBtn =
+    document.getElementById("menuToggle");
+
+    const openBtn =
+    document.getElementById("openSidebar");
+
+    const sidebar =
+    document.querySelector(".sidebar");
+
+    const mainContent =
+    document.querySelector(".main-content");
+
+    closeBtn.addEventListener("click", function(){
+
+        sidebar.classList.add("collapsed");
+
+        mainContent.classList.add("expanded");
+
+        openBtn.style.display = "block";
+
+    });
+
+    openBtn.addEventListener("click", function(){
+
+        sidebar.classList.remove("collapsed");
+
+        mainContent.classList.remove("expanded");
+
+        openBtn.style.display = "none";
+
+    });
+
+});
+
+</script>
+</body>
+
+</html>

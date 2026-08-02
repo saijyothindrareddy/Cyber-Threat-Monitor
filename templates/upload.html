@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}
+Upload Security Logs
+{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">📂 Upload Security Log File</h2>
+
+<!-- Upload Form -->
+
+<div class="card p-4">
+
+    <h4 class="mb-3">
+        Threat Analysis Upload Center
+    </h4>
+
+    <p class="text-secondary">
+        Upload authentication logs, firewall logs, or security event logs for automated threat detection and incident analysis.
+    </p>
+
+    <form method="POST" enctype="multipart/form-data">
+
+        <div class="mb-4">
+
+            <label class="form-label">
+                Select Security Log File
+            </label>
+
+            <input
+                type="file"
+                name="logfile"
+                class="form-control"
+                required
+            >
+
+        </div>
+
+        <button class="btn btn-primary btn-lg">
+            🚀 Analyze Logs
+        </button>
+
+    </form>
+
+</div>
+
+<!-- Uploaded Files -->
+
+<div class="card p-4 mt-3">
+
+    <h4 class="mb-3">
+        📁 Uploaded Log Files
+    </h4>
+
+    <table class="table table-dark table-striped align-middle">
+
+        <thead>
+
+            <tr>
+                <th>File Name</th>
+                <th width="220">Actions</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for file in files %}
+
+            <tr>
+
+                <td>
+                    {{ file }}
+                </td>
+
+                <td>
+                <a href="/analyze-file/{{ file }}"
+                class="btn btn-success btn-sm">
+                    Analyze
+                </a>
+
+                    <a href="/delete-file/{{ file }}"
+                        class="btn btn-danger btn-sm">
+                            Delete
+                        </a>
+
+                </td>
+
+            </tr>
+
+        {% else %}
+
+            <tr>
+
+                <td colspan="2" class="text-center text-secondary">
+                    No uploaded files found
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<!-- Status Cards -->
+
+<div class="row mt-3">
+
+    <div class="col-md-4">
+
+        <div class="metric-card">
+
+            <div class="metric-title">
+                Supported Formats
+            </div>
+
+            <div class="metric-value text-info">
+                TXT
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="metric-card">
+
+            <div class="metric-title">
+                Detection Engine
+            </div>
+
+            <div class="metric-value text-success">
+                ACTIVE
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="metric-card">
+
+            <div class="metric-title">
+                Analysis Mode
+            </div>
+
+            <div class="metric-value text-warning">
+                REALTIME
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Supported Threats -->
+
+<div class="card p-3 mt-3">
+
+    <h4 class="mb-3">
+        Supported Threat Detection
+    </h4>
+
+    <ul class="list-group list-group-flush">
+
+        <li class="list-group-item bg-dark text-light">
+            🚨 Brute Force Detection
+        </li>
+
+        <li class="list-group-item bg-dark text-light">
+            🔐 Credential Stuffing Detection
+        </li>
+
+        <li class="list-group-item bg-dark text-light">
+            🌐 Suspicious IP Monitoring
+        </li>
+
+        <li class="list-group-item bg-dark text-light">
+            📊 Risk Score Analysis
+        </li>
+
+    </ul>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+.metric-card{
+background:#1e293b;
+border-radius:18px;
+padding:20px;
+text-align:center;
+box-shadow:0 5px 20px rgba(0,0,0,0.35);
+height:100%;
+transition:0.3s;
+}
+
+.metric-card:hover{
+transform:translateY(-5px);
+}
+
+.metric-title{
+font-size:18px;
+margin-bottom:12px;
+color:#cbd5e1;
+}
+
+.metric-value{
+font-size:42px;
+font-weight:bold;
+}
+
+.chart-card{
+background:#1e293b;
+border-radius:18px;
+padding:25px;
+box-shadow:0 5px 20px rgba(0,0,0,0.35);
+height:100%;
+}
+
+.table-card{
+background:#1e293b;
+border-radius:18px;
+padding:25px;
+box-shadow:0 5px 20px rgba(0,0,0,0.35);
+}
+
+.alert-item{
+background:#0f172a;
+padding:16px;
+border-radius:12px;
+margin-bottom:14px;
+border-left:5px solid #ef4444;
+}
+
+.section-title{
+font-size:20px;
+font-weight:600;
+margin-bottom:20px;
+}
+
+</style>
+
+<div class="container-fluid">
+
+<div class="row mb-3 align-items-center">
+
+    <div class="col-lg-7">
+
+        
+
+        <h1 class="fw-bold mb-2" style="font-size:42px; line-height:1.1;">
+            🛡 Cyber Threat Monitoring Dashboard
+        </h1>
+
+    </div>
+
+    <div class="col-lg-5">
+
+        <div class="soc-banner">
+
+            <div class="soc-item">
+                <small>Status</small>
+                <h5 class="text-success">ACTIVE</h5>
+            </div>
+
+            <div class="soc-item">
+                <small>Threat</small>
+                <h5 class="text-danger">HIGH</h5>
+            </div>
+
+            <div class="soc-item">
+                <small>Open</small>
+                <h5 class="text-warning">
+                    {{ open_incidents }}
+                </h5>
+            </div>
+
+            <div class="soc-item">
+                <small>Resolved</small>
+                <h5 class="text-success">
+                    {{ resolved_incidents }}
+                </h5>
+            </div>
+
+        </div>
+
+        <div class="text-end mt-2">
+
+            <a href="/export"
+   class="btn btn-danger btn-sm px-3">
+                📥 Export CSV
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- Metrics -->
+
+<div class="row g-4">
+
+<div class="col-md-3">
+
+<div class="metric-card">
+
+<div class="metric-title">
+Total Alerts
+</div>
+
+<div class="metric-value text-danger">
+{{ alert_count }}
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="metric-card">
+
+<div class="metric-title">
+Open Incidents
+</div>
+
+<div class="metric-value text-warning">
+{{ open_incidents }}
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="metric-card">
+
+<div class="metric-title">
+Unique Attackers
+</div>
+
+<div class="metric-value text-info">
+{{ unique_ips }}
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="metric-card">
+
+<div class="metric-title">
+Resolved Incidents
+</div>
+
+<div class="metric-value text-success">
+{{ resolved_incidents }}
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Charts -->
+
+<div class="row mt-4 g-4">
+
+<div class="col-md-6">
+
+<div class="chart-card">
+
+<div class="section-title">
+📈 Threat Trend Analysis
+</div>
+
+<canvas id="trendChart"></canvas>
+
+</div>
+
+</div>
+
+<div class="col-md-6">
+
+<div class="chart-card">
+
+<div class="section-title">
+🎯 Attack Distribution
+</div>
+
+<canvas id="attackChart"></canvas>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Analytics -->
+
+<div class="row mt-4 g-4">
+
+<div class="col-md-6">
+
+<div class="chart-card">
+
+<div class="section-title">
+🚨 Top Attacker IPs
+</div>
+
+<canvas id="attackerChart"></canvas>
+
+</div>
+
+</div>
+
+<div class="col-md-6">
+
+<div class="chart-card">
+
+<div class="section-title">
+🌍 Top Attacking Countries
+</div>
+
+<canvas id="countryChart"></canvas>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Attack Table -->
+
+<div class="row mt-4">
+
+<div class="col-md-12">
+
+<div class="table-card">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<h4>
+⚠ Detected Threats
+</h4>
+
+</div>
+
+<table class="table table-dark table-hover align-middle">
+
+<thead>
+
+<tr>
+<th>Attack Type</th>
+<th>IP Address</th>
+<th>Severity</th>
+<th>Status</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for alert in alerts %}
+
+<tr>
+
+<td>{{ alert.type }}</td>
+
+<td>{{ alert.ip }}</td>
+
+<td>
+<span class="badge bg-danger">
+{{ alert.severity }}
+</span>
+</td>
+
+<td>
+<span class="badge bg-warning">
+Active
+</span>
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Live Alerts -->
+
+<div class="row mt-4">
+
+<div class="col-md-12">
+
+<div class="table-card">
+
+<h4 class="mb-4">
+🚨 Live Security Alerts
+</h4>
+
+{% for alert in alerts %}
+
+<div class="alert-item">
+
+<strong>{{ alert.type }}</strong>
+
+detected from
+
+<strong>{{ alert.ip }}</strong>
+
+with severity level
+
+<strong>{{ alert.severity }}</strong>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const trendCtx = document.getElementById('trendChart');
+
+new Chart(trendCtx,{
+type:'line',
+data:{
+labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+datasets:[{
+label:'Threat Activity',
+data:[2,4,6,3,7,5,9],
+borderColor:'#ef4444',
+backgroundColor:'rgba(239,68,68,0.2)',
+fill:true,
+tension:0.4
+}]
+}
+});
+
+const attackCtx = document.getElementById('attackChart');
+
+new Chart(attackCtx,{
+    type:'doughnut',
+
+    data:{
+        labels: {{ attack_labels|tojson }},
+
+        datasets:[{
+
+            data: {{ attack_values|tojson }},
+
+            backgroundColor:[
+                '#ef4444',
+                '#f97316',
+                '#eab308',
+                '#22c55e',
+                '#3b82f6',
+                '#8b5cf6',
+                '#ec4899',
+                '#14b8a6'
+            ],
+
+            borderWidth:2
+        }]
+    },
+
+    options:{
+        responsive:true,
+
+        plugins:{
+            legend:{
+                labels:{
+                    color:'white'
+                }
+            }
+        }
+    }
+});
+
+const attackerCtx = document.getElementById('attackerChart');
+
+new Chart(attackerCtx,{
+type:'bar',
+data:{
+labels: {{ attacker_labels|tojson }},
+datasets:[{
+label:'Attack Attempts',
+data: {{ attacker_values|tojson }},
+backgroundColor:'#ef4444'
+}]
+}
+});
+
+const countryCtx = document.getElementById('countryChart');
+
+new Chart(countryCtx,{
+type:'pie',
+data:{
+labels: {{ country_labels|tojson }},
+datasets:[{
+data: {{ country_values|tojson }},
+backgroundColor:[
+'#ef4444',
+'#f97316',
+'#eab308',
+'#22c55e',
+'#3b82f6'
+]
+}]
+}
+});
+
+</script>
+
+{% endblock %}

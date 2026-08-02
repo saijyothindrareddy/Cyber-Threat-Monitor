@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}
+System Health
+{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">💻 System Health Monitoring</h2>
+
+<div class="row mb-4">
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <div class="metric-title">CPU Usage</div>
+            <div class="metric-value text-warning">32%</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <div class="metric-title">Memory Usage</div>
+            <div class="metric-value text-info">58%</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <div class="metric-title">Disk Usage</div>
+            <div class="metric-value text-success">41%</div>
+        </div>
+    </div>
+
+</div>
+
+<div class="card p-4">
+
+    <h4 class="mb-4">System Resource Status</h4>
+
+    <div class="mb-4">
+
+        <label class="mb-2">
+            CPU Usage (32%)
+        </label>
+
+        <div class="progress" style="height:25px;">
+            <div class="progress-bar bg-warning"
+                 style="width:32%">
+                32%
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mb-4">
+
+        <label class="mb-2">
+            Memory Usage (58%)
+        </label>
+
+        <div class="progress" style="height:25px;">
+            <div class="progress-bar bg-info"
+                 style="width:58%">
+                58%
+            </div>
+        </div>
+
+    </div>
+
+    <div>
+
+        <label class="mb-2">
+            Disk Usage (41%)
+        </label>
+
+        <div class="progress" style="height:25px;">
+            <div class="progress-bar bg-success"
+                 style="width:41%">
+                41%
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card p-4 mt-4">
+
+    <h4 class="mb-3">System Status</h4>
+
+    <table class="table table-dark table-striped">
+
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <td>Web Server</td>
+                <td>
+                    <span class="badge bg-success">
+                        Running
+                    </span>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Database</td>
+                <td>
+                    <span class="badge bg-success">
+                        Running
+                    </span>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Threat Detection Engine</td>
+                <td>
+                    <span class="badge bg-success">
+                        Running
+                    </span>
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

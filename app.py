@@ -150,8 +150,12 @@ else:
         "logs"
     )
 
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+if os.environ.get("VERCEL"):
+    app.config["UPLOAD_FOLDER"] = "/tmp/logs"
+else:
+    app.config["UPLOAD_FOLDER"] = "logs"
 
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 os.makedirs(
     app.config["UPLOAD_FOLDER"],
     exist_ok=True

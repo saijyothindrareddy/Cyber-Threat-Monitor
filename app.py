@@ -485,7 +485,7 @@ def upload_logs():
         "upload.html",
         files=files
     )
-@app.route("/delete-file/<filename>")
+@app.route("/delete-file/<path:filename>")
 @login_required
 @analyst_required
 def delete_file(filename):
@@ -495,10 +495,23 @@ def delete_file(filename):
         filename
     )
 
-    if os.path.exists(filepath):
-        os.remove(filepath)
+    try:
+        if os.path.exists(filepath):
+            os.remove(filepath)
 
-    return redirect(url_for("upload_logs"))
+        # If no log files remain, clear dashboard alerts
+        remaining_files = os.listdir(app.config["UPLOAD_FOLDER"])
+
+        if len(remaining_files) == 0:
+            Alert.query.delete()
+            db.session.commit()
+
+        return redirect(url_for("upload_logs"))
+
+    except Exception as e:
+        print("DELETE ERROR:", e)
+        return redirect(url_for("upload_logs"))
+    
 @app.route("/analyze-file/<filename>")
 @login_required
 @analyst_required
@@ -512,7 +525,9 @@ def analyze_file(filename):
     logs = parse_logs(filepath)
 
     alerts = detect_threats(logs)
-
+    # Clear alerts from previously analyzed log file
+    Alert.query.delete()
+    db.session.commit()
     for alert in alerts:
 
         existing_alert = Alert.query.filter_by(

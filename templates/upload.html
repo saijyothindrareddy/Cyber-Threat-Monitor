@@ -17,12 +17,13 @@ Upload Security Logs
     </h4>
 
     <p class="text-secondary">
-        Upload authentication logs, firewall logs, or security event logs for automated threat detection and incident analysis.
+        Upload authentication logs, firewall logs, or security event logs
+        for automated threat detection and incident analysis.
     </p>
 
     <form method="POST" enctype="multipart/form-data">
 
-        <div class="mb-4">
+        <div class="mb-3">
 
             <label class="form-label">
                 Select Security Log File
@@ -32,18 +33,27 @@ Upload Security Logs
                 type="file"
                 name="logfile"
                 class="form-control"
+                accept=".txt,.log"
                 required
             >
 
+            <small class="text-secondary">
+                Supported formats: TXT and LOG
+            </small>
+
         </div>
 
-        <button class="btn btn-primary btn-lg">
-            🚀 Analyze Logs
+        <button
+            type="submit"
+            class="btn btn-primary btn-lg"
+        >
+            📤 Upload Log File
         </button>
 
     </form>
 
 </div>
+
 
 <!-- Uploaded Files -->
 
@@ -53,59 +63,88 @@ Upload Security Logs
         📁 Uploaded Log Files
     </h4>
 
-    <table class="table table-dark table-striped align-middle">
+    <p class="text-secondary">
+        Select a specific log file to analyze. Only the selected file's
+        detected threats will be displayed on the dashboard.
+    </p>
 
-        <thead>
+    <div class="table-responsive">
 
-            <tr>
-                <th>File Name</th>
-                <th width="220">Actions</th>
-            </tr>
+        <table class="table table-dark table-striped align-middle">
 
-        </thead>
+            <thead>
 
-        <tbody>
+                <tr>
+                    <th>File Name</th>
+                    <th>Uploaded By</th>
+                    <th>Uploaded At</th>
+                    <th width="220">Actions</th>
+                </tr>
 
-        {% for file in files %}
+            </thead>
 
-            <tr>
+            <tbody>
 
-                <td>
-                    {{ file }}
-                </td>
+                {% for file in files %}
 
-                <td>
-                <a href="/analyze-file/{{ file }}"
-                class="btn btn-success btn-sm">
-                    Analyze
-                </a>
+                <tr>
 
-                    <a href="/delete-file/{{ file }}"
-                        class="btn btn-danger btn-sm">
-                            Delete
+                    <td>
+                        📄 {{ file.filename }}
+                    </td>
+
+                    <td>
+                        {{ file.uploaded_by }}
+                    </td>
+
+                    <td>
+                        {{ file.uploaded_at }}
+                    </td>
+
+                    <td>
+
+                        <a
+                            href="{{ url_for('analyze_file', file_id=file.id) }}"
+                            class="btn btn-success btn-sm"
+                        >
+                            🔍 Analyze
                         </a>
 
-                </td>
+                        <a
+                            href="{{ url_for('delete_file', file_id=file.id) }}"
+                            class="btn btn-danger btn-sm"
+                            onclick="return confirm('Delete this uploaded log file?');"
+                        >
+                            🗑 Delete
+                        </a>
 
-            </tr>
+                    </td>
 
-        {% else %}
+                </tr>
 
-            <tr>
+                {% else %}
 
-                <td colspan="2" class="text-center text-secondary">
-                    No uploaded files found
-                </td>
+                <tr>
 
-            </tr>
+                    <td
+                        colspan="4"
+                        class="text-center text-secondary py-4"
+                    >
+                        No uploaded log files found.
+                    </td>
 
-        {% endfor %}
+                </tr>
 
-        </tbody>
+                {% endfor %}
 
-    </table>
+            </tbody>
+
+        </table>
+
+    </div>
 
 </div>
+
 
 <!-- Status Cards -->
 
@@ -120,12 +159,13 @@ Upload Security Logs
             </div>
 
             <div class="metric-value text-info">
-                TXT
+                TXT / LOG
             </div>
 
         </div>
 
     </div>
+
 
     <div class="col-md-4">
 
@@ -143,6 +183,7 @@ Upload Security Logs
 
     </div>
 
+
     <div class="col-md-4">
 
         <div class="metric-card">
@@ -152,7 +193,7 @@ Upload Security Logs
             </div>
 
             <div class="metric-value text-warning">
-                REALTIME
+                ON-DEMAND
             </div>
 
         </div>
@@ -161,7 +202,8 @@ Upload Security Logs
 
 </div>
 
-<!-- Supported Threats -->
+
+<!-- Supported Threat Detection -->
 
 <div class="card p-3 mt-3">
 

@@ -1,8 +1,12 @@
+import tempfile
+import os
+
+
 def parse_logs(filepath):
 
     logs = []
 
-    with open(filepath, "r") as file:
+    with open(filepath, "r", encoding="utf-8") as file:
 
         for line in file:
 
@@ -13,8 +17,9 @@ def parse_logs(filepath):
 
             parts = line.split()
 
-            # Example log format:
-            # 2026-03-11 10:20:30 LOGIN_FAILED user=admin ip=192.168.1.10
+            # Skip invalid/incomplete lines
+            if len(parts) < 3:
+                continue
 
             timestamp = parts[0] + " " + parts[1]
             event = parts[2]
@@ -23,10 +28,12 @@ def parse_logs(filepath):
             ip = "0.0.0.0"
 
             for part in parts:
+
                 if part.startswith("user="):
-                    user = part.split("=")[1]
+                    user = part.split("=", 1)[1]
+
                 if part.startswith("ip="):
-                    ip = part.split("=")[1]
+                    ip = part.split("=", 1)[1]
 
             logs.append({
                 "timestamp": timestamp,
@@ -36,3 +43,27 @@ def parse_logs(filepath):
             })
 
     return logs
+
+
+def parse_log_content(content):
+
+    temp_path = None
+
+    try:
+
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            suffix=".txt",
+            delete=False,
+            encoding="utf-8"
+        ) as temp_file:
+
+            temp_file.write(content)
+            temp_path = temp_file.name
+
+        return parse_logs(temp_path)
+
+    finally:
+
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)

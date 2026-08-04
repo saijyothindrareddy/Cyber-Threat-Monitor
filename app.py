@@ -13,7 +13,7 @@ from flask_login import current_user
 
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
-from log_parser import parse_logs
+from log_parser import parse_logs, parse_log_content
 from threat_detector import detect_threats
 from datetime import datetime
 from collections import Counter
@@ -462,104 +462,141 @@ def upload_logs():
 
     if request.method == "POST":
 
-        file = request.files["logfile"]
+        file = request.files.get("logfile")
 
-        if file.filename != "":
+        if not file or file.filename == "":
+            return redirect(url_for("upload_logs"))
 
-            filepath = os.path.join(
-                app.config["UPLOAD_FOLDER"],
-                file.filename
+        # Allow only security log files
+        if not file.filename.lower().endswith((".txt", ".log")):
+            return "Only .txt and .log files are allowed.", 400
+
+        # Read uploaded file
+        try:
+            content = file.read().decode("utf-8")
+        except UnicodeDecodeError:
+            return "Invalid log file encoding.", 400
+
+        # Check if same filename already exists
+        existing_file = UploadedLog.query.filter_by(
+            filename=file.filename
+        ).first()
+
+        if existing_file:
+
+            # Replace existing file content
+            existing_file.content = content
+            existing_file.uploaded_by = current_user.username
+            existing_file.uploaded_at = str(datetime.now())
+
+        else:
+
+            uploaded_log = UploadedLog(
+                filename=file.filename,
+                content=content,
+                uploaded_by=current_user.username,
+                uploaded_at=str(datetime.now())
             )
 
-            file.save(filepath)
-            audit = AuditLog(
-                username=current_user.username,
-                action=f"Uploaded Log File {file.filename}",
-                timestamp=str(datetime.now())
-            )
+            db.session.add(uploaded_log)
 
-            db.session.add(audit)
-            db.session.commit()
+        # Audit entry
+        audit = AuditLog(
+            username=current_user.username,
+            action=f"Uploaded Log File {file.filename}",
+            timestamp=str(datetime.now())
+        )
 
-            return redirect(url_for("dashboard"))
+        db.session.add(audit)
+        db.session.commit()
 
-    files = os.listdir(app.config["UPLOAD_FOLDER"])
+        return redirect(url_for("upload_logs"))
+
+    # Get uploaded files from database
+    files = UploadedLog.query.order_by(
+        UploadedLog.id.desc()
+    ).all()
 
     return render_template(
         "upload.html",
         files=files
     )
-@app.route("/delete-file/<path:filename>")
+
+
+# ---------------- DELETE UPLOADED LOG ---------------- #
+
+@app.route("/delete-file/<int:file_id>")
 @login_required
 @analyst_required
-def delete_file(filename):
+def delete_file(file_id):
 
-    filepath = os.path.join(
-        app.config["UPLOAD_FOLDER"],
-        filename
+    uploaded_log = UploadedLog.query.get_or_404(file_id)
+
+    filename = uploaded_log.filename
+
+    db.session.delete(uploaded_log)
+
+    audit = AuditLog(
+        username=current_user.username,
+        action=f"Deleted Log File {filename}",
+        timestamp=str(datetime.now())
     )
 
-    try:
-        if os.path.exists(filepath):
-            os.remove(filepath)
+    db.session.add(audit)
+    db.session.commit()
 
-        # If no log files remain, clear dashboard alerts
-        remaining_files = os.listdir(app.config["UPLOAD_FOLDER"])
+    return redirect(url_for("upload_logs"))
 
-        if len(remaining_files) == 0:
-            Alert.query.delete()
-            db.session.commit()
 
-        return redirect(url_for("upload_logs"))
+# ---------------- ANALYZE UPLOADED LOG ---------------- #
 
-    except Exception as e:
-        print("DELETE ERROR:", e)
-        return redirect(url_for("upload_logs"))
-    
-@app.route("/analyze-file/<filename>")
+@app.route("/analyze-file/<int:file_id>")
 @login_required
 @analyst_required
-def analyze_file(filename):
+def analyze_file(file_id):
 
-    filepath = os.path.join(
-        app.config["UPLOAD_FOLDER"],
-        filename
+    uploaded_log = UploadedLog.query.get_or_404(file_id)
+
+    # Parse ONLY the selected log file
+    logs = parse_log_content(
+        uploaded_log.content
     )
 
-    logs = parse_logs(filepath)
+    # Detect threats ONLY from selected file
+    detected_alerts = detect_threats(logs)
 
-    alerts = detect_threats(logs)
-    # Clear alerts from previously analyzed log file
+    # Clear previous dashboard alerts
     Alert.query.delete()
     db.session.commit()
-    for alert in alerts:
 
-        existing_alert = Alert.query.filter_by(
+    # Store alerts from selected file
+    for alert in detected_alerts:
+
+        new_alert = Alert(
             timestamp=alert["timestamp"],
-            ip=alert["ip"]
-        ).first()
+            ip=alert["ip"],
+            country=get_ip_location(alert["ip"]),
+            username=alert["user"],
+            attack_type=alert["type"],
+            severity=alert["severity"],
+            risk_score=alert["risk_score"],
+            status="Open",
+            created_at=alert["timestamp"]
+        )
 
-        if not existing_alert:
+        db.session.add(new_alert)
 
-            new_alert = Alert(
-                timestamp=alert["timestamp"],
-                ip=alert["ip"],
-                country=get_ip_location(alert["ip"]),
-                username=alert["user"],
-                attack_type=alert["type"],
-                severity=alert["severity"],
-                risk_score=alert["risk_score"],
-                status="Open",
-                created_at=alert["timestamp"]
-            )
+    # Audit entry
+    audit = AuditLog(
+        username=current_user.username,
+        action=f"Analyzed Log File {uploaded_log.filename}",
+        timestamp=str(datetime.now())
+    )
 
-            db.session.add(new_alert)
-
+    db.session.add(audit)
     db.session.commit()
 
     return redirect(url_for("dashboard"))
-
-
 # ---------------- ATTACK LOGS PAGE ---------------- #
 
 @app.route("/logs")
@@ -568,6 +605,30 @@ def logs_page():
     alerts = Alert.query.all()
 
     return render_template("logs.html", alerts=alerts)
+
+class UploadedLog(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    filename = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    content = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    uploaded_by = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    uploaded_at = db.Column(
+        db.String(100),
+        nullable=False
+    )
 # ---------------- INCIDENT MANAGEMENT ---------------- #
 
 @app.route("/incidents")

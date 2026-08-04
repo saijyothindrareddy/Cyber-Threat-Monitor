@@ -20,9 +20,20 @@ from collections import Counter
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = "soc_dashboard_secret"
+app.config["SECRET_KEY"] = os.environ.get(
+    "SECRET_KEY",
+    "soc_dashboard_secret"
+)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+# Database configuration
+# Vercel uses /tmp because the application filesystem is read-only.
+if os.environ.get("VERCEL"):
+    database_path = "/tmp/database.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{database_path}"
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
@@ -96,18 +107,17 @@ def load_user(user_id):
 def get_ip_location(ip):
 
     try:
-
         response = requests.get(
-            f"http://ip-api.com/json/{ip}"
+            f"http://ip-api.com/json/{ip}",
+            timeout=3
         )
 
         data = response.json()
 
-        if data["status"] == "success":
+        if data.get("status") == "success":
+            return data.get("country", "Unknown")
 
-            return data["country"]
-
-    except:
+    except Exception:
         pass
 
     demo_countries = [
@@ -121,14 +131,24 @@ def get_ip_location(ip):
         "Canada"
     ]
 
-    return demo_countries[
-        int(ip.split(".")[-1]) % len(demo_countries)
-    ]
+    try:
+        last_part = int(ip.split(".")[-1])
+        return demo_countries[
+            last_part % len(demo_countries)
+        ]
 
-UPLOAD_FOLDER = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "logs"
-)
+    except (ValueError, IndexError, AttributeError):
+        return "Unknown"
+
+# ---------------- UPLOAD FOLDER CONFIGURATION ---------------- #
+
+if os.environ.get("VERCEL"):
+    UPLOAD_FOLDER = "/tmp/logs"
+else:
+    UPLOAD_FOLDER = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "logs"
+    )
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
@@ -624,7 +644,11 @@ def export_alerts():
 
     alerts = Alert.query.all()
 
-    filename = "alerts_export.csv"
+    # Vercel only allows temporary file writes inside /tmp
+    if os.environ.get("VERCEL"):
+        filename = "/tmp/alerts_export.csv"
+    else:
+        filename = "alerts_export.csv"
 
     with open(filename, "w", newline="", encoding="utf-8") as file:
 
@@ -648,7 +672,8 @@ def export_alerts():
 
     return send_file(
         filename,
-        as_attachment=True
+        as_attachment=True,
+        download_name="alerts_export.csv"
     )
 def initialize_database():
 
